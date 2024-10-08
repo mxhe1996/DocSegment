@@ -1,0 +1,13 @@
+# 可以复制一份，命名为config-local.yaml 作为本地优先配置文件
+embedding_model:
+  spark:
+    spark_app_id:
+    spark_api_secret:
+    spark_api_key:
+
+  bge_m3:
+    model_name:
+    url:
+
+  openai:
+    api_key:
