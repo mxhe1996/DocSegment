@@ -5,7 +5,7 @@ import copy
 from semantic_seg import SemanticTextSplitter
 from text2vec import SimpleEmbeddingModel
 
-doc_path = "C:\\Users\\ssc\\Desktop\\cloud技术文档.docx"
+doc_path = f"./demo/test1.docx"
 doc = Document(doc_path)
 
 
@@ -23,7 +23,8 @@ def build_struct_tree(charter_content: list[docx.text.paragraph.Paragraph], char
 
     if len(level_index) == 0:
         semantic_chunk = spliter.semantic_split_text(''.join([p.text for p in charter_content]))
-        return '', [{'content': semantic_chunk, '_meta': _meta}]  # 同一文本内容分段
+        # semantic_chunk = ''.join([p.text for p in charter_content])
+        return {'content': semantic_chunk, '_meta': _meta}, ''  # 同一文本内容分段
 
     for i in range(len(level_index)):
         body = {'title': charter_content[level_index[i]].text}
@@ -36,7 +37,8 @@ def build_struct_tree(charter_content: list[docx.text.paragraph.Paragraph], char
         body['content'] = content
         nodes.append(body)
 
-    return spliter.semantic_split_text(''.join([p.text for p in charter_content[:level_index[0]]])), nodes
+    pre_content = ''.join([p.text for p in charter_content[:level_index[0]]])
+    return {'content': spliter.semantic_split_text(pre_content), '_meta': _meta}, nodes
 
 
 for index, para in enumerate(doc.paragraphs):
