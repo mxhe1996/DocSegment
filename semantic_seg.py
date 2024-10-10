@@ -3,6 +3,7 @@ import sys
 import time
 import re
 import numpy as np
+import random
 
 from text2vec import SimpleEmbeddingModel
 
@@ -36,8 +37,15 @@ class SemanticTextSplitter:
     def semantic_split_text(self, text: str):
         # 字符清洗
         character_clean_content = self.character_filter(text)
+        # 无效内容
+        if character_clean_content.strip() == '':
+            return ['']
+
         # 中文文本分割
-        single_sentences = re.split(r'(?<=[。？！])', character_clean_content)
+        single_sentences = list(filter(None, re.split(r'(?<=[。？！])', character_clean_content)))
+        # 仅有一句话
+        if len(single_sentences) == 1:
+            return single_sentences
 
         # semantic_field = 1
         combined_context_sentence = []
@@ -64,15 +72,16 @@ class SemanticTextSplitter:
         chunk_segment = []
         chunk_start_, segment_index = 0, 1
         while segment_index < len(similarity_array):
-            if similarity_array[segment_index] < max(segment_threshold,
-                                                     self.dynamic_segment_factory(segment_index - chunk_start_)):
+            if similarity_array[segment_index] >= max(segment_threshold,
+                                                      self.dynamic_segment_factory(segment_index - chunk_start_)):
                 segment_index += 1
             else:
-                chunk_segment.append({'chunk_content': single_sentences[chunk_start_:segment_index - 1]})
+                # chunk_segment.append({'chunk_content': ''.join(single_sentences[chunk_start_:segment_index])})
+                chunk_segment.append(''.join(single_sentences[chunk_start_:segment_index]))
                 chunk_start_ = segment_index
                 segment_index += 1
 
-        chunk_segment.append(single_sentences[chunk_start_:])
+        chunk_segment.append(''.join(single_sentences[chunk_start_:]))
         return chunk_segment
 
 

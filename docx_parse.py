@@ -22,7 +22,7 @@ def build_struct_tree(charter_content: list[docx.text.paragraph.Paragraph], char
             level_index.append(i)
 
     if len(level_index) == 0:
-        semantic_chunk = spliter.semantic_split_text(''.join([p.text for p in charter_content]))
+        semantic_chunk = spliter.semantic_split_text(''.join([p.text for p in charter_content]).strip())
         # semantic_chunk = ''.join([p.text for p in charter_content])
         return {'content': semantic_chunk, '_meta': _meta}, ''  # 同一文本内容分段
 
@@ -37,8 +37,9 @@ def build_struct_tree(charter_content: list[docx.text.paragraph.Paragraph], char
         body['content'] = content
         nodes.append(body)
 
-    pre_content = ''.join([p.text for p in charter_content[:level_index[0]]])
+    pre_content = ''.join([p.text for p in charter_content[:level_index[0]]]).strip()
     return {'content': spliter.semantic_split_text(pre_content), '_meta': _meta}, nodes
+    # return {'content': pre_content, '_meta': _meta}, nodes
 
 
 for index, para in enumerate(doc.paragraphs):
@@ -54,4 +55,9 @@ meta = {
 }
 _, tree = build_struct_tree(doc.paragraphs, 1, meta)
 
-print(doc.element)
+
+import json
+tree_json = json.dumps(tree)
+with open('./out.txt', 'w+') as out_file:
+    out_file.write(tree_json)
+
